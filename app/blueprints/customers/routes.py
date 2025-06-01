@@ -1,9 +1,12 @@
-from .schemas import customer_schema, customers_schema
+from .schemas import customer_schema, customers_schema, service_tickets_schema
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
-from app.models import Customer, db
+from app.models import Customer, db, Service_Ticket
 from . import customers_bp
+from app.extensions import limiter
+from app.extensions import cache
+from app.utils.util import encode_token, token_required
 
 
 
@@ -52,6 +55,7 @@ def get_customer(customer_id):
 #UPDATE SPECIFIC CUSTOMER
 
 @customers_bp.route('/<int:customer_id>', methods=['PUT'])
+@token_required
 def update_customer(customer_id):
     customer = db.session.get(Customer, customer_id)
     
@@ -72,7 +76,10 @@ def update_customer(customer_id):
 
 #DELETE SPECIFIC CUSTOMER
 
-@customers_bp.route('/<int:customer_id>', methods=['DELETE'])
+@customers_bp.route('/login', methods=['DELETE'])
+@limiter.limit("3 per hour")
+@cache.cached(timeout=60) 
+@token_required
 def delete_customer(customer_id):
     customer = db.session.get(Customer, customer_id)
     
@@ -82,3 +89,41 @@ def delete_customer(customer_id):
     db.session.delete(customer)
     db.session.commit()    
     return jsonify({"message":f'Customer id: {customer_id}, successfully deleted.'}), 200
+
+
+#CUSTOMER LOGIN
+
+@customers_bp.route("/login", methods=['POST'])
+def login():
+    try:
+        credentials = request.json
+        email = credentials['email']
+        password = credentials['password']
+    except KeyError:
+        return jsonify({'message': 'Invalid payload, expecting email and password'}), 400
+
+    query = select(Customer).where(Customer.email == email)                                     # Query customer by email
+    customer = db.session.execute(query).scalar_one_or_none()
+
+    if customer and customer.password == password:
+        auth_token = encode_token(customer.id)                                                  
+
+        response = {
+            "status": "success",
+            "message": "Successfully Logged In",
+            "auth_token": auth_token
+        }
+        return jsonify(response), 200
+    else:
+        return jsonify({'message': "Invalid email or password"}), 401
+    
+
+##CUSTOMER REQUESTS THEIR TICKETS
+
+@customers_bp.route('/my-tickets', methods=['GET'])
+@token_required
+def get_my_tickets(customer_id):
+    query = select(Service_Ticket).where(Service_Ticket.customer_id == customer_id)
+    tickets = db.session.execute(query).scalars().all()
+    
+    return service_tickets_schema.jsonify(tickets), 200

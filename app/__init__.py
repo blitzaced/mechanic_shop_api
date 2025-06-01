@@ -4,6 +4,8 @@ from .models import db
 from .blueprints.customers import customers_bp
 from .blueprints.mechanics import mechanics_bp
 from .blueprints.service_tickets import service_tickets_bp
+from .extensions import ma, limiter
+from .extensions import ma, limiter, cache
 
 def create_app(config_name):
     app = Flask(__name__)
@@ -12,7 +14,8 @@ def create_app(config_name):
     #INITIALIZE EXTENSIONS
     ma.init_app(app)
     db.init_app(app)
-    
+    limiter.init_app(app)
+    cache.init_app(app)    
     
     
     #REGISTER BLUEPRINTS

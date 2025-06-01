@@ -4,12 +4,16 @@ from marshmallow import ValidationError
 from sqlalchemy import select
 from app.models import Service_Ticket, Mechanic, db
 from . import service_tickets_bp
+from app.extensions import limiter
+from app.extensions import cache
+from app.utils.util import encode_token, token_required
 
 
 
 #CREATE SERVICE TICKET
 
 @service_tickets_bp.route('/', methods=['POST'])
+@token_required
 def create_service_ticket():
     
     try:
@@ -28,26 +32,27 @@ def create_service_ticket():
 @service_tickets_bp.route('/', methods=['GET'])
 def get_service_tickets():
     query = select(Service_Ticket)
-    mechanics = db.session.execute(query).scalars().all()
+    service_tickets = db.session.execute(query).scalars().all()
     
-    return service_tickets_schema.jsonify(mechanics)
+    return service_tickets_schema.jsonify(service_tickets)
 
 
 #RETRIEVE SPECIFIC SERVICE TICKET
 
-@service_tickets_bp.route('/<int:mechanic_id>', methods=['GET'])
-def get_mechanic(mechanic_id):
-    mechanic = db.session.get(Mechanic, mechanic_id)
+@service_tickets_bp.route('/<int:service_ticket_id>', methods=['GET'])
+def get_service_ticket(service_ticket_id):
+    service_ticket = db.session.get(Service_Ticket, service_ticket_id)
     
-    if mechanic:
-        return mechanic_schema.jsonify(mechanic), 400
-    return jsonify({"error": "Mechanic not found."}), 400
+    if service_ticket:
+        return service_ticket_schema.jsonify(service_ticket), 400
+    return jsonify({"error": "Service ticket not found."}), 400
 
 
 #ASSIGN MECHANIC TO TICKET
 
 
 @service_tickets_bp.route('/<int:service_ticket_id>/assign-mechanic/<int:mechanic_id>', methods=['PUT'])
+@token_required
 def assign_mechanic_to_ticket(service_ticket_id, mechanic_id):
     # Fetch the service ticket
     service_ticket = db.session.get(Service_Ticket, service_ticket_id)
@@ -73,6 +78,7 @@ def assign_mechanic_to_ticket(service_ticket_id, mechanic_id):
 ##REMOVE MECHANIC FROM TICKET
 
 @service_tickets_bp.route('/<int:service_ticket_id>/remove-mechanic/<int:mechanic_id>', methods=['DELETE'])
+@token_required
 def remove_mechanic_from_ticket(service_ticket_id, mechanic_id):
     # Fetch the service ticket
     service_ticket = db.session.get(Service_Ticket, service_ticket_id)
