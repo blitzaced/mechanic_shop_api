@@ -1,4 +1,4 @@
-from .schemas import customer_schema, customers_schema, service_tickets_schema
+from .schemas import customer_schema, customers_schema
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
@@ -7,6 +7,7 @@ from . import customers_bp
 from app.extensions import limiter
 from app.extensions import cache
 from app.utils.util import encode_token, token_required
+from app.blueprints.service_tickets.schemas import service_tickets_schema
 
 
 
@@ -21,7 +22,7 @@ def create_customer():
         return jsonify(e.messages), 400
     
     query = select(Customer).where(Customer.email == customer_data['email'])
-    existing_customer = db.session.execute(query).scalers().all()
+    existing_customer = db.session.execute(query).scalars().all()
     if existing_customer: 
         return jsonify({"error": "Email already associated with an account."}), 400
     
@@ -48,14 +49,13 @@ def get_customer(customer_id):
     customer = db.session.get(Customer, customer_id)
     
     if customer:
-        return customer_schema.jsonify(customer), 400
+        return customer_schema.jsonify(customer), 200
     return jsonify({"error": "Customer not found."}), 400
 
 
 #UPDATE SPECIFIC CUSTOMER
 
 @customers_bp.route('/<int:customer_id>', methods=['PUT'])
-@token_required
 def update_customer(customer_id):
     customer = db.session.get(Customer, customer_id)
     
@@ -76,10 +76,7 @@ def update_customer(customer_id):
 
 #DELETE SPECIFIC CUSTOMER
 
-@customers_bp.route('/login', methods=['DELETE'])
-@limiter.limit("3 per hour")
-@cache.cached(timeout=60) 
-@token_required
+@customers_bp.route('/<int:customer_id>', methods=['DELETE'])
 def delete_customer(customer_id):
     customer = db.session.get(Customer, customer_id)
     
@@ -121,7 +118,6 @@ def login():
 ##CUSTOMER REQUESTS THEIR TICKETS
 
 @customers_bp.route('/my-tickets', methods=['GET'])
-@token_required
 def get_my_tickets(customer_id):
     query = select(Service_Ticket).where(Service_Ticket.customer_id == customer_id)
     tickets = db.session.execute(query).scalars().all()

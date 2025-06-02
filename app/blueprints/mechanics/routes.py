@@ -13,7 +13,6 @@ from app.utils.util import encode_token, token_required
 #CREATE MECHANIC
 
 @mechanics_bp.route('/', methods=['POST'])
-@token_required
 def create_mechanic():
     
     try:
@@ -22,7 +21,7 @@ def create_mechanic():
         return jsonify(e.messages), 400
     
     query = select(Mechanic).where(Mechanic.email == mechanic_data['email'])
-    existing_mechanic = db.session.execute(query).scalers().all()
+    existing_mechanic = db.session.execute(query).scalars().all()
     if existing_mechanic: 
         return jsonify({"error": "Email already associated with a mechanic."}), 400
     
@@ -75,7 +74,7 @@ def update_mechanic(mechanic_id):
     return mechanic_schema.jsonify(mechanic), 200
  
 
-#DELETE SPECIFIC CUSTOMER
+#DELETE SPECIFIC MECHANIC
 
 @mechanics_bp.route('/<int:mechanic_id>', methods=['DELETE'])
 @token_required
