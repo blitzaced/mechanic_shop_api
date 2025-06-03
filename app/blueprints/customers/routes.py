@@ -62,7 +62,8 @@ def get_customer(customer_id):
 
 #UPDATE SPECIFIC CUSTOMER
 
-@customers_bp.route('/<int:customer_id>', methods=['PUT'])
+@customers_bp.route('/', methods=['PUT'])
+@token_required
 def update_customer(customer_id):
     customer = db.session.get(Customer, customer_id)
     
@@ -83,7 +84,8 @@ def update_customer(customer_id):
 
 #DELETE SPECIFIC CUSTOMER
 
-@customers_bp.route('/<int:customer_id>', methods=['DELETE'])
+@customers_bp.route('/', methods=['DELETE'])
+@token_required
 def delete_customer(customer_id):
     customer = db.session.get(Customer, customer_id)
     

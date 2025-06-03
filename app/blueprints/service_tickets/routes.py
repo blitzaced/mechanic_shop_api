@@ -73,7 +73,7 @@ def assign_mechanic_to_ticket(service_ticket_id, mechanic_id):
     return jsonify({"message": f"Mechanic {mechanic.name} assigned to ticket {service_ticket.id}."}), 200
  
 
-##REMOVE MECHANIC FROM TICKET
+#REMOVE MECHANIC FROM TICKET
 
 @service_tickets_bp.route('/<int:service_ticket_id>/remove-mechanic/<int:mechanic_id>', methods=['DELETE'])
 @token_required
@@ -128,3 +128,4 @@ def edit_service_ticket(service_ticket_id):
     
     db.session.commit()
     return return_service_ticket_schema.jsonify(service_ticket)
+
