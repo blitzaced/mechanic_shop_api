@@ -116,14 +116,14 @@ def edit_service_ticket(service_ticket_id):
         query = select(Mechanic).where(Mechanic.id == mechanic_id)
         mechanic = db.session.execute(query).scalars().first()
         
-        if mechanic and mechanic not in service_ticket:
+        if mechanic and mechanic not in service_ticket.mechanics:
             service_ticket.mechanics.append(mechanic)
             
     for mechanic_id in service_ticket_edits['remove_mechanic_ids']:
         query = select(Mechanic).where(Mechanic.id == mechanic_id)
         mechanic = db.session.execute(query).scalars().first()
         
-        if mechanic and mechanic in service_ticket:
+        if mechanic and mechanic in service_ticket.mechanics:
             service_ticket.mechanics.remove(mechanic)    
     
     db.session.commit()

@@ -1,7 +1,7 @@
 from .schemas import mechanic_schema, mechanics_schema
 from flask import request, jsonify
 from marshmallow import ValidationError
-from sqlalchemy import select
+from sqlalchemy import select, delete 
 from app.models import Mechanic, db
 from . import mechanics_bp
 from app.extensions import limiter
@@ -87,3 +87,32 @@ def delete_mechanice(mechanic_id):
     db.session.delete(mechanic)
     db.session.commit()    
     return jsonify({"message":f'Mechanic id: {mechanic_id}, successfully deleted.'}), 200
+
+
+
+#SORT MECHANICS BY TICKET ASSIGNMENTS
+
+@mechanics_bp.route("/popular", methods=['GET'])
+def popular_mechanics():
+   query = select(Mechanic)
+   mechanics = db.session.execute(query).scalars().all()
+   
+   
+   mechanics.sort(key= lambda mechanic: len(mechanic.service_tickets), reverse=True)
+   
+   return mechanics_schema.jsonify(mechanics)
+
+
+#MECHANICS QUERY PARAMETERS - BY NAME
+
+@mechanics_bp.route("/search", methods=['GET'])
+def search_mechanic():
+    name = request.args.get("name")
+    
+    if not name:
+        return jsonify({"error": "Missing 'name' parameter"}), 400  
+    
+    query = select(Mechanic).where(Mechanic.name.like(f"%{name}%"))
+    mechanics = db.session.execute(query).scalars().all()
+    
+    return mechanics_schema.jsonify(mechanics)

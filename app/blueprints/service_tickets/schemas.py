@@ -5,11 +5,11 @@ from marshmallow import fields
 
 class Service_TicketSchema(ma.SQLAlchemyAutoSchema):
     mechanics = fields.Nested("MechanicSchema", many=True)
-    customers = fields.Nested("CustonerScehma")
+    customers = fields.Nested("CustomerSchema")
     class Meta:
         model = Service_Ticket
         include_fk = True
-        fields = ("id", "VIN", "service_date", "service_desc", "customer_id")
+        fields = ("id", "VIN", "service_date", "service_desc", "customer_id", "mechanics")
         
 class EditService_TicketSchema(ma.Schema):
     add_mechanic_ids = fields.List(fields.Int(),required=True)

@@ -35,11 +35,18 @@ def create_customer():
 #RETRIEVE CUSTOMERS
 
 @customers_bp.route('/', methods=['GET'])
+#@cache.cached(timeout=1)
 def get_customers():
-    query = select(Customer)
-    customers = db.session.execute(query).scalars().all()
-    
-    return customers_schema.jsonify(customers)
+    try:
+        page = int(request.args.get('page'))
+        per_page = int(request.args.get('per_page'))
+        query = select(Customer)
+        customers = db.paginate(query, page=page, per_page=per_page)
+        return customers_schema.jsonify(customers), 200
+    except:
+        query = select(Customer)
+        customers = db.session.execute(query).scalars().all()
+        return customers_schema.jsonify(customers), 200
 
 
 #RETRIEVE SPECIFIC CUSTOMER

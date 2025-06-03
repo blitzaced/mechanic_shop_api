@@ -19,7 +19,7 @@ class Customer(Base):
     email: Mapped[str] = mapped_column(db.String(360), nullable=False, unique=True)
     phone: Mapped[str] = mapped_column(db.String(20), nullable=False)
 
-    service_tickets: Mapped[List['Service_Ticket']] = db.relationship(back_populates='customer')
+    service_tickets: Mapped[List['Service_Ticket']] = db.relationship(back_populates='customer', cascade="all, delete")
     
 class Service_Ticket(Base):
     __tablename__='service_tickets'
