@@ -1,4 +1,4 @@
-from .schemas import customer_schema, customers_schema
+from .schemas import customer_schema, customers_schema, login_schema
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
@@ -100,31 +100,35 @@ def delete_customer(customer_id):
 @customers_bp.route("/login", methods=['POST'])
 def login():
     try:
-        credentials = request.json
+        credentials = login_schema.load(request.json)
         email = credentials['email']
         password = credentials['password']
-    except KeyError:
-        return jsonify({'message': 'Invalid payload, expecting email and password'}), 400
+        
+    except ValidationError as e:
+        return jsonify(e.messages), 400
 
     query = select(Customer).where(Customer.email == email)                                     # Query customer by email
-    customer = db.session.execute(query).scalar_one_or_none()
+    customer = db.session.execute(query).scalars().first()
 
     if customer and customer.password == password:
-        auth_token = encode_token(customer.id)                                                  
+        token = encode_token(customer.id)                                                  
 
         response = {
             "status": "success",
             "message": "Successfully Logged In",
-            "auth_token": auth_token
+            "token": token
         }
+        
         return jsonify(response), 200
+    
     else:
-        return jsonify({'message': "Invalid email or password"}), 401
+        return jsonify({'message': "Invalid email or password!"}), 401
     
 
 ##CUSTOMER REQUESTS THEIR TICKETS
 
 @customers_bp.route('/my-tickets', methods=['GET'])
+@token_required
 def get_my_tickets(customer_id):
     query = select(Service_Ticket).where(Service_Ticket.customer_id == customer_id)
     tickets = db.session.execute(query).scalars().all()

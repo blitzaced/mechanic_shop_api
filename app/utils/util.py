@@ -4,7 +4,7 @@ import jose
 from functools import wraps
 from flask import request, jsonify
 
-SECRET_KEY = "a super secret, secret key"
+SECRET_KEY = "super secret secrets"
 
 def encode_token(customer_id):                                                  #using unique pieces of info to make our tokens user specific
     payload = {
@@ -22,21 +22,24 @@ def token_required(f):
         token = None
         # Look for the token in the Authorization header
         if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split(" ")[1]
+            token = request.headers['Authorization'].split()[1]
         
-        if not token:
-            return jsonify({'message': 'Token is missing!'}), 401
+            if not token:
+                return jsonify({'message': 'Token is missing!'}), 400
 
-        try:
-            # Decode the token
-            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            customer_id = data['sub']                                             # Fetch the customer ID
+            try:
+                # Decode the token
+                data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+                customer_id = data['sub']                                             # Fetch the customer ID
             
-        except jose.exceptions.ExpiredSignatureError:
-             return jsonify({'message': 'Token has expired!'}), 401
-        except jose.exceptions.JWTError:
-             return jsonify({'message': 'Invalid token!'}), 401
+            except jwt.ExpiredSignatureError as e:
+                return jsonify({'message': 'Token has expired!'}), 400
+            except jwt.InvalidTokenError:
+                return jsonify({'message': 'Invalid token!'}), 400
 
-        return f(customer_id, *args, **kwargs)
-
+            return f(customer_id, *args, **kwargs)
+    
+        else:
+            return jsonify({'message': 'You must be logged in to access this.'}), 400
+        
     return decorated

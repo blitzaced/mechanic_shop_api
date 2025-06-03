@@ -76,7 +76,7 @@ def update_mechanic(mechanic_id):
 
 #DELETE SPECIFIC MECHANIC
 
-@mechanics_bp.route('/<int:mechanic_id>', methods=['DELETE'])
+@mechanics_bp.route('/', methods=['DELETE'])
 @token_required
 def delete_mechanice(mechanic_id):
     mechanic = db.session.get(Mechanic, mechanic_id)
