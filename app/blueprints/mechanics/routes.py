@@ -55,7 +55,6 @@ def get_mechanic(mechanic_id):
 #UPDATE SPECIFIC MECHANIC
 
 @mechanics_bp.route('/', methods=['PUT'])
-@token_required
 def update_mechanic(mechanic_id):
     mechanic = db.session.get(Mechanic, mechanic_id)
     
@@ -77,8 +76,7 @@ def update_mechanic(mechanic_id):
 #DELETE SPECIFIC MECHANIC
 
 @mechanics_bp.route('/', methods=['DELETE'])
-@token_required
-def delete_mechanice(mechanic_id):
+def delete_mechanic(mechanic_id):
     mechanic = db.session.get(Mechanic, mechanic_id)
     
     if not mechanic:
