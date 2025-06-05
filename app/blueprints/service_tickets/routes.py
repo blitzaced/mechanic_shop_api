@@ -2,7 +2,7 @@ from .schemas import service_ticket_schema, service_tickets_schema, return_servi
 from flask import request, jsonify
 from marshmallow import ValidationError
 from sqlalchemy import select
-from app.models import Service_Ticket, Mechanic, db
+from app.models import Service_Ticket, Mechanic, Part, db
 from . import service_tickets_bp
 from app.extensions import limiter
 from app.extensions import cache
@@ -49,7 +49,6 @@ def get_service_ticket(service_ticket_id):
 
 #ASSIGN MECHANIC TO TICKET
 
-
 @service_tickets_bp.route('/<int:service_ticket_id>/assign-mechanic/<int:mechanic_id>', methods=['PUT'])
 def assign_mechanic_to_ticket(service_ticket_id, mechanic_id):
     # Fetch the service ticket
@@ -64,7 +63,7 @@ def assign_mechanic_to_ticket(service_ticket_id, mechanic_id):
 
     # Check if already assigned
     if mechanic in service_ticket.mechanics:
-        return jsonify({"message": "Mechanic is already assigned to this service ticket."}), 200
+        return jsonify({"message": "Mechanic is already assigned to this service ticket."}), 400
 
     # Assign mechanic to ticket
     service_ticket.mechanics.append(mechanic)
@@ -129,3 +128,28 @@ def edit_service_ticket(service_ticket_id):
     db.session.commit()
     return return_service_ticket_schema.jsonify(service_ticket)
 
+
+
+#ADD PART TO TICKET
+
+@service_tickets_bp.route('/<int:service_ticket_id>/add-part/<int:part_id>', methods=['PUT'])
+def add_part_to_ticket(service_ticket_id, part_id):
+    # Fetch the service ticket
+    service_ticket = db.session.get(Service_Ticket, service_ticket_id)
+    if not service_ticket:
+        return jsonify({"error": "Service ticket not found."}), 404
+
+    # Fetch the part
+    part = db.session.get(Part, part_id)
+    if not part:
+        return jsonify({"error": "Part not found."}), 404
+
+    # Check if already added
+    if part in service_ticket.parts:
+        return jsonify({"message": "This part has already been added to this service ticket."}), 400
+
+    # Add part to ticket
+    service_ticket.parts.append(part)
+    db.session.commit()
+
+    return jsonify({"message": f"Part {part.name} added to ticket {service_ticket.id}."}), 200

@@ -52,7 +52,7 @@ def get_part(part_id):
 
 #UPDATE SPECIFIC PART
 
-@parts_bp.route('/', methods=['PUT'])
+@parts_bp.route('/<int:part_id>', methods=['PUT'])
 def update_part(part_id):
     part = db.session.get(Part, part_id)
     
@@ -73,7 +73,7 @@ def update_part(part_id):
 
 #DELETE SPECIFIC PART
 
-@parts_bp.route('/', methods=['DELETE'])
+@parts_bp.route('/<int:part_id>', methods=['DELETE'])
 def delete_part(part_id):
     part = db.session.get(Part, part_id)
     
