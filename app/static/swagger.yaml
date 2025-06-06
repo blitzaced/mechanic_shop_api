@@ -1,0 +1,258 @@
+
+
+#This indicates the version of the OpenAPI Specification being used. '2.0' refers to the second version of the specification.
+swagger: '2.0'                                                            
+
+#This section provides general information about the API:
+info:                                                                     
+  title: "Mechanic Shop API"                                              
+  description: "This is an API to manage a mechanic shop system."       
+  version: "1.0.0"                                                        
+
+#The base URL of the API, in this case, "127.0.0.1:5000". This is where the API can be accessed.
+host: "127.0.0.1:5000"                                                    
+
+#The transfer protocol used byt the API, in this case, "http".
+schemes:                                                                  
+  - "http"
+
+#The types of request body formats the API can consume. Here, it's "application/json", meaning the API can accept JSON-formatted request bodies.
+consumes:                                                                 
+  - "application/json"
+
+#The types of response body formats the API can produce. Here, it's also "application/json", indicating that the API will respond with JSON-formatted data.
+produces:                                                                 
+  - "application/json"
+
+securityDefinitions:
+  bearerAuth:
+    type: apiKey
+    name: Authorization
+    in: header
+    description: "Enter your JWT token with the `Bearer ` prefix, e.g., `Bearer <your_token>`"
+
+#This is where you would define the endpoints of your API, along with the HTTP methods they support and their respective request/response formats.
+#In this example, it's left empty, indicating that no paths have been defined yet.
+paths:
+  /customers/login:
+    post:
+      tags:
+        - Customers
+      summary: "Login endpoint, (generates token)."
+      description: "Validates customer credentials, generates and return a customer specific token."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Login Credentials"
+          required: true
+          schema:
+            $ref: "#/definitions/LoginCredentials"
+      responses:
+        200:
+          description: "Login successful"
+          schema:
+            $ref: "#/definitions/LoginResponse"   
+          examples:
+            application/json:
+              token: "klajsdflkkjashdfkjhjkhsdf..."
+              message: "Login successful"
+              status: "success"
+
+  /customers: 
+    post: 
+      tags:
+        - Customers
+      summary: "Endpoint to create/register a new customer."
+      description: "Endpoint to create a new customer in our Mechanic Shop system, emails must be unique."
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Information required to create a new Customer."
+          required: true
+          schema:
+            $ref: "#/definitions/CreateCustomerPayload"
+      responses:
+        201:
+          descriptions: "Successfull Customer Creation"
+          schema:
+            $ref: "#/definitions/CreateCustomerResponse"
+          examples:
+            application/json:
+              id: 1
+              name: "John Doe"
+              phone: "123-456-7890"
+              email: "johnd@email.com"
+              password: "password123"   
+
+    get:
+      tags:
+        - Customers
+      summary: "Returns all Customers"
+      description: "Endpoint to retrieve a list of all customers."
+      responses:
+        200:
+          description: "Retrieved Customers Successfully"           
+          schema:
+            $ref: "#/definitions/AllCustomers"
+
+    put: 
+      tags:
+        - Customers
+      summary: "Endpoint to update a customer."
+      description: "Endpoint to update a customer, this is a token authenticated route, and the customer must be logged in to update their account."
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: "body"
+          name: "body"
+          description: "Information required to update a Customer."
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateCustomerPayload"
+      responses:
+        200:
+          descriptions: "Successfully Updated customer"
+          schema:
+            $ref: "#/definitions/UpdateCustomerResponse"
+          examples:
+            application/json:
+              id: 1
+              name: "Dohn Joe"
+              phone: "123-456-7890"
+              email: "dohnj@email.com"
+              password: "password123"
+
+    delete:
+      tags:
+        - Customers
+      summary: "Enpoint to delete a customer"
+      description: "Endpoint to delete a customer. Requires token authentication, customer must be logged in to delete their account"
+      security:
+       - bearerAuth: []
+      responses:
+        200:
+          description: "Successfully Deleted member"           
+          schema:
+            $ref: "#/definitions/DeleteCustomerResponse"
+          examples:
+            application/json:
+              message: "successfully deleted customer <customer_id>."
+
+
+
+#This is where you would define the data structures used in your API, such as request and response bodies.
+#In this example, it's also left empty, indicating that no data structures have been defined yet.
+definitions:
+  #Customer Login
+  LoginCredentials:
+    type: "object"
+    properties:
+      email:
+        type: "string"
+      password:
+        type: "string"
+
+    required:
+      - email
+      - password
+
+  LoginResponse:
+    type: "object"
+    properties:
+      token:
+        type: "string"
+      message:
+        type: "string"
+      status:
+        type: "string"
+
+  #Create New Customer
+  CreateCustomerPayload:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      email:
+        type: "string"
+      phone:
+        type: "string"
+      password:
+        type: "string"
+      
+    required:
+      - name
+      - email
+      - phone
+      - password
+
+  CreateCustomerResponse:
+    type: "object"
+    properties:
+      id:
+        type: "int"
+      name:
+        type: "string"
+      email:
+        type: "string"
+      phone:
+        type: "string"
+      password:
+        type: "string"
+
+  #GET ALL CUSTOMERS
+  AllCustomers:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        name:
+          type: "string"
+        email:
+          type: "string"
+        phone:
+          type: "string"
+        password:
+          type: "string"
+
+  #UPDATE CUSTOMER
+  UpdateCustomerPayload:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+      email:
+        type: "string"
+      phone:
+        type: "string"
+      password:
+        type: "string"
+    
+    required:
+      - name
+      - email
+      - phone
+      - password
+
+
+  UpdateCustomerResponse:
+    type: "object"
+    properties:
+      id:
+        type: "integer"
+      name:
+        type: "string"
+      email:
+        type: "string"
+      phone:
+        type: "string"
+      password:
+        type: "string"
+
+  #DELETE CUSTOMER
+  DeleteCustomerResponse:
+    type: "object"
+    properties:
+      message:
+        type: "string" 

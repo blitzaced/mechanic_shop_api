@@ -21,26 +21,24 @@ def token_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = None
-        # Look for the token in the Authorization header
-        if 'Authorization' in request.headers:
-            token = request.headers['Authorization'].split()[1]
-        
-            if not token:
-                return jsonify({'message': 'Token is missing!'}), 400
 
-            try:
-                # Decode the token
-                data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-                customer_id = data['sub']                                             # Fetch the customer ID
-            
-            except jwt.ExpiredSignatureError as e:
-                return jsonify({'message': 'Token has expired!'}), 400
-            except jwt.InvalidTokenError:
-                return jsonify({'message': 'Invalid token!'}), 400
+        auth_header = request.headers.get('Authorization', '')
+        parts = auth_header.split()
 
-            return f(customer_id, *args, **kwargs)
-    
+        if len(parts) == 2 and parts[0] == 'Bearer':
+            token = parts[1]
         else:
-            return jsonify({'message': 'You must be logged in to access this.'}), 400
+            return jsonify({'message': 'Token is missing or improperly formatted!'}), 400
+
+        try:
+            # Decode the token
+            data = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            customer_id = data['sub']
+        except jwt.ExpiredSignatureError:
+            return jsonify({'message': 'Token has expired!'}), 400
+        except jwt.InvalidTokenError:
+            return jsonify({'message': 'Invalid token!'}), 400
+
+        return f(customer_id, *args, **kwargs)
         
     return decorated
