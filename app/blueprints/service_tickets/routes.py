@@ -49,53 +49,53 @@ def get_service_ticket(service_ticket_id):
 
 #ASSIGN MECHANIC TO TICKET
 
-@service_tickets_bp.route('/<int:service_ticket_id>/assign-mechanic/<int:mechanic_id>', methods=['PUT'])
-def assign_mechanic_to_ticket(service_ticket_id, mechanic_id):
+#@service_tickets_bp.route('/<int:service_ticket_id>/assign-mechanic/<int:mechanic_id>', methods=['PUT'])
+#def assign_mechanic_to_ticket(service_ticket_id, mechanic_id):
     # Fetch the service ticket
-    service_ticket = db.session.get(Service_Ticket, service_ticket_id)
-    if not service_ticket:
-        return jsonify({"error": "Service ticket not found."}), 404
+    #service_ticket = db.session.get(Service_Ticket, service_ticket_id)
+    #if not service_ticket:
+        #return jsonify({"error": "Service ticket not found."}), 404
 
     # Fetch the mechanic
-    mechanic = db.session.get(Mechanic, mechanic_id)
-    if not mechanic:
-        return jsonify({"error": "Mechanic not found."}), 404
+    #mechanic = db.session.get(Mechanic, mechanic_id)
+    #if not mechanic:
+        #return jsonify({"error": "Mechanic not found."}), 404
 
     # Check if already assigned
-    if mechanic in service_ticket.mechanics:
-        return jsonify({"message": "Mechanic is already assigned to this service ticket."}), 400
+    #if mechanic in service_ticket.mechanics:
+        #return jsonify({"message": "Mechanic is already assigned to this service ticket."}), 400
 
     # Assign mechanic to ticket
-    service_ticket.mechanics.append(mechanic)
-    db.session.commit()
+    #service_ticket.mechanics.append(mechanic)
+    #db.session.commit()
 
-    return jsonify({"message": f"Mechanic {mechanic.name} assigned to ticket {service_ticket.id}."}), 200
+    #return jsonify({"message": f"Mechanic {mechanic.name} assigned to ticket {service_ticket.id}."}), 200
  
 
 #REMOVE MECHANIC FROM TICKET
 
-@service_tickets_bp.route('/<int:service_ticket_id>/remove-mechanic/<int:mechanic_id>', methods=['DELETE'])
-@token_required
-def remove_mechanic_from_ticket(service_ticket_id, mechanic_id):
+#@service_tickets_bp.route('/<int:service_ticket_id>/remove-mechanic/<int:mechanic_id>', methods=['DELETE'])
+#@token_required
+#def remove_mechanic_from_ticket(service_ticket_id, mechanic_id):
     # Fetch the service ticket
-    service_ticket = db.session.get(Service_Ticket, service_ticket_id)
-    if not service_ticket:
-        return jsonify({"error": "Service ticket not found."}), 404
+    #service_ticket = db.session.get(Service_Ticket, service_ticket_id)
+    #if not service_ticket:
+        #return jsonify({"error": "Service ticket not found."}), 404
 
     # Fetch the mechanic
-    mechanic = db.session.get(Mechanic, mechanic_id)
-    if not mechanic:
-        return jsonify({"error": "Mechanic not found."}), 404
+    #mechanic = db.session.get(Mechanic, mechanic_id)
+    #if not mechanic:
+        #return jsonify({"error": "Mechanic not found."}), 404
 
     # Check if the mechanic is assigned to the ticket
-    if mechanic not in service_ticket.mechanics:
-        return jsonify({"message": "Mechanic is not assigned to this service ticket."}), 400
+    #if mechanic not in service_ticket.mechanics:
+        #return jsonify({"message": "Mechanic is not assigned to this service ticket."}), 400
 
     # Remove the mechanic
-    service_ticket.mechanics.remove(mechanic)
-    db.session.commit()
+    #service_ticket.mechanics.remove(mechanic)
+    #db.session.commit()
 
-    return jsonify({"message": f"Mechanic {mechanic.name} removed from service ticket {service_ticket.id}."}), 200
+    #return jsonify({"message": f"Mechanic {mechanic.name} removed from service ticket {service_ticket.id}."}), 200
 
 
 #EDIT SERVICE TICKET
