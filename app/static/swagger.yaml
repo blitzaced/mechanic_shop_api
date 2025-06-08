@@ -359,7 +359,7 @@ paths:
             application/json:
               id: 1
               VIN: "123456789abcdefgh"
-              customer_id: "1"
+              customer_id: 1
               service_date: "2025-02-23"
               service_desc: "flat tire" 
 
@@ -407,24 +407,46 @@ paths:
           name: "service_ticket_id"
           type: "integer"
           required: true
-        - in: "body"
-          name: "body"
-          required: true
-          description: "Updated service ticket data"
-          schema:
-            $ref: "#/definitions/UpdateServiceTicketPayload"
+          description: "ID of the service ticket to update"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/definitions/EditServiceTicketMechanicsPayload'
+            examples:
+              updateExample:
+                summary: Update mechanic assignments
+                value:
+                  add_mechanic_ids: [1, 2]
+                  remove_mechanic_ids: [3]
       responses:
         200:
-          description: "Service ticket updated"
-          schema:
-            $ref: "#/definitions/ServiceTicket"
-        400:
-          description: "Service ticket not found"
-          examples:
+          description: Successfully updated service ticket
+          content:
             application/json:
-              id: 1
-              add_mechanic_ids: [1,2]
-              remove_mechanic_ids: [3,4]
+              schema:
+                $ref: '#/definitions/ServiceTicket'
+        400:
+          description: Invalid input or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/ErrorResponse'
+              examples:
+                validationError:
+                  value:
+                    add_mechanic_ids: ["Not a valid list"]
+        404:
+          description: Service ticket not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/definitions/EditServiceTicketMechanicsResponse'
+              examples:
+                notFound:
+                  value:
+                    error: "Service ticket with ID 5 not found"
 
   /service_tickets/{service_ticket_id}/add-part/{part_id}:
     #Add part to service ticket
@@ -868,21 +890,24 @@ definitions:
         type: "int"
 
 
-  AddRemoveMechanicRequest:
-    type: "object"
-    properties:
-      add_mechanic_ids:
-        type: "array"
-        items:
-          type: "integer"
-      remove_mechanic_ids:
-        type: "array"
-        items:
-          type: "integer"
+EditServiceTicketMechanicsPayload:
+  type: "object"
+  properties:
+    add_mechanic_ids:
+      type: "array"
+      items:
+        type: "integer"
+    remove_mechanic_ids:
+      type: "array"
+      items:
+        type: "integer"
+  required:
+    - add_mechanic_ids
+    - remove_mechanic_ids
 
-  AddRemoveMechanicResponse:
-    type: "object"
-    properties:
-      message:
-        type: "string"
-        example: "Mechanic John Doe assigned to ticket 3."
+EditServiceTicketMechanicsResponse:
+  type: "object"
+  properties:
+    error:
+      type: "string"
+      example: "Something went wrong"
