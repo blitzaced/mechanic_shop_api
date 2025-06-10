@@ -6,7 +6,7 @@ from app.models import Customer, db, Service_Ticket
 from . import customers_bp
 from app.extensions import limiter
 from app.extensions import cache
-from app.utils.util import encode_token, token_required
+from app.utils.auth import encode_token, token_required
 from app.blueprints.service_tickets.schemas import service_tickets_schema
 
 

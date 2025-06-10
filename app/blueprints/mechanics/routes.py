@@ -6,7 +6,7 @@ from app.models import Mechanic, db
 from . import mechanics_bp
 from app.extensions import limiter
 from app.extensions import cache
-from app.utils.util import encode_token, token_required
+from app.utils.auth import encode_token, token_required
 
 
 
@@ -71,7 +71,7 @@ def update_mechanic(mechanic_id):
     
     db.session.commit()
     return mechanic_schema.jsonify(mechanic), 200
- 
+
 
 #DELETE SPECIFIC MECHANIC
 

@@ -3,7 +3,7 @@ from jose import jwt
 import jose
 from functools import wraps
 from flask import request, jsonify
-import jwt
+
 
 SECRET_KEY = "super secret secrets"
 
