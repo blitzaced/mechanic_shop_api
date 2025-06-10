@@ -36,7 +36,7 @@ securityDefinitions:
 #PATHS - This is where you would define the endpoints of your API, along with the HTTP methods they support and their respective request/response formats.
 #In this example, it's left empty, indicating that no paths have been defined yet.
 paths:
-#Customers
+#CUSTOMERS
   /customers/login:
     #Customer login
     post:
@@ -196,8 +196,7 @@ paths:
                 type: "string"
                 example: "Token is missing or invalid"
 
-
-#Mechanics
+#MECHANICS
   /mechanics:
     #Create a new mechanic
     post:
@@ -354,7 +353,7 @@ paths:
         201:
           descriptions: "Successfull service ticket creation"
           schema:
-            $ref: "#/definitions/CreateServiceTicketResponse"
+            $ref: "#/definitions/ServiceTicket"
           examples:
             application/json:
               id: 1
@@ -382,199 +381,247 @@ paths:
       tags:
         - Service Tickets
       summary: "Retrieve a specific service ticket"
-      description: "Endpoint to retrieve service ticket details using the service ticket ID"
+      description: "Retrieve service ticket details using the service ticket ID"
       parameters:
         - in: "path"
           name: "service_ticket_id"
           type: "integer"
           required: true
+          description: "ID of the service ticket to retrieve."
       responses:
         200:
-          description: "ServiceTicket found"
+          description: "Service ticket retrieved successfully."
           schema:
             $ref: "#/definitions/ServiceTicket"
         400:
-          description: "ServiceTicket not found"
+          description: "Service ticket not found"
 
-    #Edit service ticket mechanic assignments
+
+  /service_tickets/{ticket_id}/add-mechanic/{mechanic_id}:
+    #Add mechanic to service ticket
     put:
       tags:
         - Service Tickets
-      summary: "Update mechanic assignments on a service ticket"
-      description: "Endpoint to assign and/or remove mechanics to/from a service ticket using the service ticket ID"
+      summary: "Assign a mechanic to a service ticket"
+      description: "Adds a mechanic to the specified service ticket if not already assigned."
       parameters:
-        - in: "path"
-          name: "service_ticket_id"
-          type: "integer"
+        - name: ticket_id
+          in: path
           required: true
-          description: "ID of the service ticket to update"
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/definitions/EditServiceTicketMechanicsPayload'
-            examples:
-              updateExample:
-                summary: Update mechanic assignments
-                value:
-                  add_mechanic_ids: [1, 2]
-                  remove_mechanic_ids: [3]
+          type: integer
+        - name: mechanic_id
+          in: path
+          required: true
+          type: integer
       responses:
         200:
-          description: Successfully updated service ticket
-          content:
-            application/json:
-              schema:
-                $ref: '#/definitions/ServiceTicket'
+          description: "Mechanic successfully added to service ticket"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              ticket:
+                $ref: "#/definitions/ServiceTicket"
+              mechanics:
+                type: array
+                items:
+                  $ref: "#/definitions/Mechanic"
         400:
-          description: Invalid input or validation error
-          content:
-            application/json:
-              schema:
-                $ref: '#/definitions/ErrorResponse'
-              examples:
-                validationError:
-                  value:
-                    add_mechanic_ids: ["Not a valid list"]
-        404:
-          description: Service ticket not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/definitions/EditServiceTicketMechanicsResponse'
-              examples:
-                notFound:
-                  value:
-                    error: "Service ticket with ID 5 not found"
+          description: "Invalid IDs or mechanic already assigned"
+          schema:
+            $ref: "#/definitions/Error"
+
+  /service_tickets/{ticket_id}/remove-mechanic/{mechanic_id}:
+    #Remove mechanic from service ticket
+    put:
+      tags:
+        - Service Tickets
+      summary: "Remove a mechanic from a service ticket"
+      description: "Removes a mechanic from the specified service ticket if assigned."
+      parameters:
+        - name: ticket_id
+          in: path
+          required: true
+          type: integer
+        - name: mechanic_id
+          in: path
+          required: true
+          type: integer
+      responses:
+        200:
+          description: "Mechanic successfully removed from service ticket"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+              ticket:
+                $ref: "#/definitions/ServiceTicket"
+              mechanics:
+                type: array
+                items:
+                  $ref: "#/definitions/Mechanic"
+        400:
+          description: "Invalid IDs or mechanic not assigned"
+          schema:
+            $ref: "#/definitions/Error"
+
 
   /service_tickets/{service_ticket_id}/add-part/{part_id}:
-    #Add part to service ticket
     put:
       tags:
         - Service Tickets
       summary: "Add a part to a service ticket"
-      decsription: "Endpoint to add a part to a service ticket using part and service ticket IDs"
+      description: "Adds a part to the specified service ticket if it hasn't been added yet."
       parameters:
-        - name: "service_ticket_id"
-          in: "path"
+        - name: service_ticket_id
+          in: path
           required: true
-          schema:
-            type: "integer"
-        - name: "part_id"
-          in: "path"
+          type: integer
+        - name: part_id
+          in: path
           required: true
-          schema:
-            type: "integer"
+          type: integer
       responses:
         200:
-          description: "Part added successfully"
+          description: "Part successfully added to service ticket"
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
         400:
-          description: "Part already added or bad request"
+          description: "Part already assigned to ticket"
+          schema:
+            $ref: "#/definitions/Error"
         404:
           description: "Service ticket or part not found"
+          schema:
+            $ref: "#/definitions/Error"
+
 
 #PARTS
-    #Create a new part
-    post: 
+  #Create a new part
+  /parts:
+    post:
       tags:
         - Parts
       summary: "Create a new part"
-      description: "Endpoint to create a new part in our Mechanic Shop system."
+      description: "Endpoint to create a new part. Requires part data in the request body."
       parameters:
-        - in: "body"
-          name: "body"
-          description: "Information required to create a new part."
+        - in: body
+          name: part
           required: true
           schema:
-            $ref: "#/definitions/CreatePartPayload"
-      responses:
-        201:
-          descriptions: "Successful service ticket creation"
-          schema:
-            $ref: "#/definitions/CreatePartResponse"
+            $ref: "#/definitions/PartInput"
           examples:
             application/json:
-              id: 1
-              name: "tire"
-              price: "85.00"
+              name: "Brake Pad"
+              price: 45.99
+              in_stock: true
+      responses:
+        201:
+          description: "Part successfully created"
+          schema:
+            $ref: "#/definitions/Part"
+        400:
+          description: "Invalid input or part already exists"
+          schema:
+            $ref: "#/definitions/Error"
 
-    #Retrieve all parts
     get:
       tags:
         - Parts
       summary: "Retrieve all parts"
-      description: "Retrieves a list of all parts"
+      description: "Returns a list of all parts in the system."
       responses:
         200:
-          description: "Successfully retrieved all parts"
+          description: "List of all parts"
           schema:
-            $ref: "#/definitions/AllParts"
+            type: array
+            items:
+              $ref: "#/definitions/Part"
 
   /parts/{part_id}:
-    #Retreive specific part
     get:
       tags:
         - Parts
       summary: "Retrieve a specific part"
-      description: "Endpoint to retrieve part details using the part ID"
+      description: "Returns a specific part by its ID."
       parameters:
-        - in: "path"
-          name: "part_id"
-          type: "integer"
+        - name: part_id
+          in: path
           required: true
+          type: integer
+          example: 1
       responses:
         200:
-          description: "Part found"
+          description: "Part retrieved successfully"
           schema:
             $ref: "#/definitions/Part"
         400:
           description: "Part not found"
+          schema:
+            $ref: "#/definitions/Error"
 
-    #Update a part
     put:
       tags:
         - Parts
       summary: "Update a specific part"
-      description: "Endpoint to update a specific part using the part ID"
+      description: "Updates a part with new data by its ID."
       parameters:
-        - in: "path"
-          name: "part_id"
-          type: "integer"
+        - name: part_id
+          in: path
           required: true
-        - in: "body"
-          name: "body"
+          type: integer
+          example: 1
+        - in: body
+          name: part
           required: true
-          description: "Updated part data"
           schema:
-            $ref: "#/definitions/UpdatePartPayload"
-      responses:
-        200:
-          description: "Part updated"
-          schema:
-            $ref: "#/definitions/Part"
+            $ref: "#/definitions/PartInput"
           examples:
             application/json:
-              id: 1
-              name: "tire"
-              price: "85.00"
+              name: "Air Filter"
+              price: 19.99
+              in_stock: false
+      responses:
+        200:
+          description: "Part successfully updated"
+          schema:
+            $ref: "#/definitions/Part"
         400:
-          description: "Part not found"
+          description: "Validation error or part not found"
+          schema:
+            $ref: "#/definitions/Error"
 
-    #Delete a part
     delete:
       tags:
         - Parts
       summary: "Delete a specific part"
-      description: "Endpoint to delete a part by using the part id"
+      description: "Deletes a part by its ID."
+      parameters:
+        - name: part_id
+          in: path
+          required: true
+          type: integer
+          example: 1
       responses:
         200:
-          description: "Successfully deleted part"           
+          description: "Part successfully deleted"
           schema:
-            $ref: "#/definitions/DeletePartResponse"
-          examples:
-            application/json:
-              message: "successfully deleted part <part_id>."
+            type: object
+            properties:
+              message:
+                type: string
+                example: "Part id: 1, successfully deleted."
+        400:
+          description: "Part not found"
+          schema:
+            $ref: "#/definitions/Error"
+
+
 
 
 #DEFINITIONS - This is where you would define the data structures used in your API, such as request and response bodies.
@@ -889,25 +936,71 @@ definitions:
       customer_id:
         type: "int"
 
+  #Retrieve All Service Tickets
+  AllServiceTickets:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        VIN:
+          type: "string"
+        service_date:
+          type: "string"
+          format: "date"
+        service_desc:
+          type: "string"
+        customer_id:
+          type: "integer"
 
-EditServiceTicketMechanicsPayload:
-  type: "object"
-  properties:
-    add_mechanic_ids:
-      type: "array"
-      items:
+  #Retrieve Specific Service Ticket
+  GetServiceTicket:
+    type: "object"
+    properties:
+      id:
         type: "integer"
-    remove_mechanic_ids:
-      type: "array"
-      items:
+      VIN:
+        type: "string"
+      service_date:
+        type: "string"
+        format: "date"
+      service_desc:
+        type: "string"
+      customer_id:
         type: "integer"
-  required:
-    - add_mechanic_ids
-    - remove_mechanic_ids
+      mechanics:
+        type: "array"
+        items:
+          $ref "#/definitions/Mechanic"
+      parts:
+        type: "array"
+        items:
+          $ref: "#/definitions/Part"
 
-EditServiceTicketMechanicsResponse:
-  type: "object"
-  properties:
-    error:
-      type: "string"
-      example: "Something went wrong"
+  Part:
+    type: object
+    properties:
+      id:
+        type: integer
+        example: 1
+      name:
+        type: string
+        example: "Brake Pad"
+      price:
+        type: number
+        format: float
+        example: 45.99
+
+  PartInput:
+    type: object
+    required:
+      - name
+      - price
+    properties:
+      name:
+        type: string
+        example: "Brake Pad"
+      price:
+        type: number
+        format: float
+        example: 45.99
+

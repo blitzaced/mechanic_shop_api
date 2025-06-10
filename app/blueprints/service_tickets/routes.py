@@ -44,7 +44,7 @@ def get_service_ticket(service_ticket_id):
     service_ticket = db.session.get(Service_Ticket, service_ticket_id)
     
     if service_ticket:
-        return service_ticket_schema.jsonify(service_ticket), 400
+        return service_ticket_schema.jsonify(service_ticket), 200
     return jsonify({"error": "Service ticket not found."}), 400
 
 
