@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"jared@email.com\",\r\n    \"password\": \"jared0000\"\r\n}",
+							"raw": "{\r\n    \"email\": \"test@email.com\",\r\n    \"password\": \"test0000\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -48,7 +48,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\": \"jared@email.com\",\r\n    \"name\": \"Jared Jones\",\r\n    \"password\": \"jared0000\",\r\n    \"phone\": \"000-000-0000\"\r\n}",
+							"raw": "{\r\n    \"email\": \"test@email.com\",\r\n    \"name\": \"Testy McTester\",\r\n    \"password\": \"test0000\",\r\n    \"phone\": \"100-000-0000\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -213,9 +213,31 @@
 				},
 				{
 					"name": "Retrieve My Tickets",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NDkyMjk2ODAsImlhdCI6MTc0OTIyNjA4MCwic3ViIjoiMyJ9.eAZ-gBSAl3bMPjKMGhdNVZQMOTD1zLy31UDMpKLm5tg",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "http://127.0.0.1:5000/customers/my-tickets",
 							"protocol": "http",
@@ -444,7 +466,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"VIN\": \"jf26d35d68gh54av6\",\r\n    \"customer_id\": \"1\",\r\n    \"service_date\": \"2025-01-23\",\r\n    \"service_desc\": \"test\"\r\n}",
+							"raw": "{\r\n    \"VIN\": \"jf26d35d68gh54av5\",\r\n    \"customer_id\": \"1\",\r\n    \"service_date\": \"2025-02-23\",\r\n    \"service_desc\": \"test\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -564,6 +586,108 @@
 							"path": [
 								"service_tickets",
 								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Part to Service Ticket",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/service_tickets/1/add-part/1",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"service_tickets",
+								"1",
+								"add-part",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Mechanic to Service Ticket",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/service_tickets/1/add-mechanic/3",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"service_tickets",
+								"1",
+								"add-mechanic",
+								"3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Mechanic from Service Ticket",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:5000/service_tickets/1/remove-mechanic/3",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "5000",
+							"path": [
+								"service_tickets",
+								"1",
+								"remove-mechanic",
+								"3"
 							]
 						}
 					},
