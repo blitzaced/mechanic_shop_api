@@ -48,8 +48,8 @@ def get_mechanic(mechanic_id):
     mechanic = db.session.get(Mechanic, mechanic_id)
     
     if mechanic:
-        return mechanic_schema.jsonify(mechanic), 400
-    return jsonify({"error": "Mechanic not found."}), 400
+        return mechanic_schema.jsonify(mechanic), 200
+    return jsonify({"error": "Mechanic not found."}), 404
 
 
 #UPDATE SPECIFIC MECHANIC

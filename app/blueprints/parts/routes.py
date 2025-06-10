@@ -46,7 +46,7 @@ def get_part(part_id):
     part = db.session.get(Part, part_id)
     
     if part:
-        return part_schema.jsonify(part), 400
+        return part_schema.jsonify(part), 200
     return jsonify({"error": "Part not found."}), 400
 
 
