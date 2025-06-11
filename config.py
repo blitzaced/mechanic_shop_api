@@ -1,3 +1,5 @@
+import os
+
 
 class DevelopmentConfig:
     SQLALCHEMY_DATABASE_URI = 'mysql+mysqlconnector://root:Chip2447@localhost/mechanic_shop_db'
@@ -12,7 +14,10 @@ class TestingConfig:
     SECRET_KEY = 'test-secret-key'
 
 class ProductionConfig:
-    pass
+    SQLALCHEMY_DATABASE_URI = os.environ.get("SQLALCHEMY_DATABASE_URI") or 'sqlite:///app.db'
+    CACHE_TYPE = "SimpleCache"
+
+
 
 development = DevelopmentConfig
 testing = TestingConfig
